@@ -165,7 +165,7 @@ tourSchema.post(/^find/, function (docs, next) {
 tourSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'guides',
-    select: '_id name email role',
+    select: '_id name email role photo',
   });
   next();
 });
@@ -187,7 +187,6 @@ tourSchema.pre('aggregate', function (next) {
     });
   }
 
-  console.log(this.pipeline());
   next();
 });
 

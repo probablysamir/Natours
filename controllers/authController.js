@@ -20,25 +20,18 @@ const createSendToken = (user, statusCode, res) => {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    secure: true,
     httpOnly: true,
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-  res.cookie('jwt', token);
+  res.cookie('jwt', token, cookieOptions);
+
+  const jwtCookie = `jwt=${token}; Path=/; Expires=${cookieOptions.expires}`;
 
   user.password = undefined;
-  // if (!hide) {
-  //   return res.status(statusCode).json({
-  //     status: 'success',
-  //     token,
-  //     data: {
-  //       user,
-  //     },
-  //   });
-  // }
+
   res.status(statusCode).json({
     status: 'success',
-    token,
+    jwtCookie,
     data: {
       user,
     },
@@ -83,7 +76,10 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
+
   if (!token)
     return next(
       new AppError('You are not logged in! Please log in to get access', 401)

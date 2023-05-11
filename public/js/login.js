@@ -6,7 +6,7 @@ export const login = async (email, password) => {
     const res = await axios(
       {
         method: 'POST',
-        url: 'http://127.0.0.1:3000/api/v1/users/login',
+        url: '/api/v1/users/login',
         data: {
           email,
           password,
@@ -26,8 +26,29 @@ export const login = async (email, password) => {
     }
 
     console.log(res);
-    document.cookie = res.data.jwtCookie;
+    // document.cookie = res.data.jwtCookie;
   } catch (err) {
-    showAlert('error',err.response.data.message);
+    showAlert('error', err.response.data.message);
+  }
+};
+
+export const logout = async () => {
+  try {
+    const res = await axios(
+      {
+        method: 'GET',
+        url: '/api/v1/users/logout',
+      },
+      {
+        withCredentials: true,
+        credentials: 'include',
+      }
+    );
+
+    console.log(res);
+    // document.cookie = res.data.jwtCookie;
+    if (res.data.status === 'success') location.reload(true);
+  } catch (err) {
+    showAlert('error', 'Error logging out. Please try again!');
   }
 };

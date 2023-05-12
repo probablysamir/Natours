@@ -32,6 +32,7 @@ const createSendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: 'success',
     jwtCookie,
+    token,
     data: {
       user,
     },
@@ -239,7 +240,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select('+password');
 
   // 2) Check if the POSTed current password is correct
-  if (!user.correctPassword(req.body.passwordCurrent, user.password)) {
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
     return next(new AppError('Your current password is wrong!'));
   }
 
